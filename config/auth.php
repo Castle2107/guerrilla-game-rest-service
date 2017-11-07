@@ -45,6 +45,17 @@ return [
             'driver' => 'token',
             'provider' => 'users',
         ],
+
+        'player' => [
+            'driver' => 'session',
+            'provider' => 'players',
+        ],
+
+        'player-api' => [
+            // TODO: 'driver' => 'passport or jwt',
+            'driver' => 'token',
+            'provider' => 'players',
+        ],
     ],
 
     /*
@@ -68,6 +79,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\User::class,
+        ],
+
+        'players' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Player::class,
         ],
 
         // 'users' => [
@@ -96,6 +112,12 @@ return [
             'provider' => 'users',
             'table' => 'password_resets',
             'expire' => 60,
+        ],
+
+        'players' => [
+            'provider' => 'players',
+            'table' => 'password_resets',
+            'expire' => 15,
         ],
     ],
 
