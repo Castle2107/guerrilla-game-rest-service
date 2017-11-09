@@ -12,7 +12,7 @@ class BattleUnit extends Model
     	'name',
     	'description',
     	'type',
-    	'cost'
+        'ranking_value'
     );
 
     public function guerrillas() {

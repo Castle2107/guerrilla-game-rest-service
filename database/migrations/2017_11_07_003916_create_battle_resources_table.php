@@ -16,7 +16,7 @@ class CreateBattleResourcesTable extends Migration
         Schema::create('battle_resources', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 30);
-            $table->string('description', 200);
+            $table->string('description', 200)->nullable();
             $table->timestamps();
         });
     }

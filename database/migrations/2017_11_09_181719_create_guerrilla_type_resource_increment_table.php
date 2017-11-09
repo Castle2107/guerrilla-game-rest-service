@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBattleResourceGuerrillaTable extends Migration
+class CreateGuerrillaTypeResourceIncrementTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateBattleResourceGuerrillaTable extends Migration
      */
     public function up()
     {
-        Schema::create('battle_resource_guerrilla', function (Blueprint $table) {
+        Schema::create('guerrilla_type_resource_increment', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->integer('guerrilla_id')->unsigned();
-            $table->foreign('guerrilla_id')
+            $table->integer('guerrilla_type_id')->unsigned();
+            $table->foreign('guerrilla_type_id')
                 ->references('id')
-                ->on('guerrillas')
+                ->on('guerrilla_types')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
@@ -30,8 +30,7 @@ class CreateBattleResourceGuerrillaTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->integer('value');
-
+            $table->integer('increment_value');
             $table->timestamps();
         });
     }
@@ -43,6 +42,6 @@ class CreateBattleResourceGuerrillaTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('battle_resource_guerrilla');
+        Schema::dropIfExists('guerrilla_type_resource_increment');
     }
 }

@@ -15,10 +15,9 @@ class CreateGuerrillasTable extends Migration
     {
         Schema::create('guerrillas', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name', 20);
             $table->double('attack_rate');
             $table->double('defense_rate');
-            $table->double('points');
+            $table->double('ranking_score');
 
             $table->integer('player_id')->unsigned();
             $table->foreign('player_id')

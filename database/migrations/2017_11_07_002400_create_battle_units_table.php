@@ -16,9 +16,11 @@ class CreateBattleUnitsTable extends Migration
         Schema::create('battle_units', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 50);
-            $table->string('description', 200);
-            $table->enum('type', ['offense', 'defense']);
-            $table->double('cost');
+            $table->string('description', 200)->nullable();
+            $table->enum('type', ['offense', 'defense'])->nullable();
+
+            // value applied to the final raking_score
+            $table->integer('ranking_value'); 
             $table->timestamps();
         });
     }

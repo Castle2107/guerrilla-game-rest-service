@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBattleResourceGuerrillaTable extends Migration
+class CreateBattleUnitDamageTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,25 +13,24 @@ class CreateBattleResourceGuerrillaTable extends Migration
      */
     public function up()
     {
-        Schema::create('battle_resource_guerrilla', function (Blueprint $table) {
+        Schema::create('battle_unit_damage', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->integer('guerrilla_id')->unsigned();
-            $table->foreign('guerrilla_id')
+            $table->integer('battle_unit_attacker_id')->unsigned();
+            $table->foreign('battle_unit_attacker_id')
                 ->references('id')
-                ->on('guerrillas')
+                ->on('battle_units')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->integer('battle_resource_id')->unsigned();
-            $table->foreign('battle_resource_id')
+            $table->integer('battle_unit_target_id')->unsigned();
+            $table->foreign('battle_unit_target_id')
                 ->references('id')
-                ->on('battle_resources')
+                ->on('battle_units')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->integer('value');
-
+            $table->integer('damage_value');
             $table->timestamps();
         });
     }
@@ -43,6 +42,6 @@ class CreateBattleResourceGuerrillaTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('battle_resource_guerrilla');
+        Schema::dropIfExists('battle_unit_damage');
     }
 }

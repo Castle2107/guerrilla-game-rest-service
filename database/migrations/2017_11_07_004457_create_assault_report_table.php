@@ -13,10 +13,25 @@ class CreateAssaultReportTable extends Migration
      */
     public function up()
     {
-        Schema::create('assault_report', function (Blueprint $table) {
+        Schema::create('assault_reports', function (Blueprint $table) {
             $table->increments('id');
-            $table->json('attacker');
-            $table->json('target');
+
+            $table->integer('target_id')->unsigned();
+            $table->foreign('target_id')
+                ->references('id')
+                ->on('players')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+            $table->integer('attacker_id')->unsigned();
+            $table->foreign('attacker_id')
+                ->references('id')
+                ->on('players')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+            $table->json('attacker_result_url');
+            $table->json('target_result_url');
             $table->timestamps();
         });
     }

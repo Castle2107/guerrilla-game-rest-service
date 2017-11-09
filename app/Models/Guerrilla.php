@@ -9,11 +9,10 @@ class Guerrilla extends Model
     protected $table = 'guerrillas';
 
     protected $fillable = array(
-    	'name',
         'player_username',
     	'attack_rate',
     	'defense_rate',
-    	'points',
+    	'ranking_score',
         'player_id',
     	'guerrilla_type_id'
     );

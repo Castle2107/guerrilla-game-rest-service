@@ -17,7 +17,6 @@ class CreatePlayersTable extends Migration
             $table->increments('id');
             $table->string('username', 50)->unique();
             $table->string('email', 50)->unique();
-            $table->string('password');
             $table->rememberToken();
             $table->timestamps();
         });

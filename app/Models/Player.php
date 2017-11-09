@@ -16,8 +16,7 @@ class Player extends Authenticatable
 
    	protected $fillable = array(
    		'username',
-   		'email',
-   		'password'
+   		'email'
    	);
 
    	protected $hidden = array(
@@ -27,5 +26,13 @@ class Player extends Authenticatable
 
     public function guerrillas() {
       return $this->hasMany('App\Models\Guerrilla', 'player_id', 'id');
+    }
+
+    public function attackerReports() {
+      return $this->hasMany('App\Models\AssaultReport', 'attacker_id', 'id');
+    }
+
+    public function targetReports() {
+      return $this->hasMany('App\Models\AssaultReport', 'target_id', 'id');
     }
 }
