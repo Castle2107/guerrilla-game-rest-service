@@ -9,29 +9,27 @@ class Guerrilla extends Model
     protected $table = 'guerrillas';
 
     protected $fillable = array(
-        'player_username',
-    	'attack_rate',
+        'username',
+    	'email',
+        'attack_rate',
     	'defense_rate',
     	'ranking_score',
-        'player_id',
-    	'guerrilla_type_id'
+    	'guerrilla_type',
+        'oil',
+        'money',
+        'people',
+        'tank',
+        'assault',
+        'engineer',
+        'bunker',
     );
 
-    public function player() {
-        return $this->belongsTo('App\Models\Player', 'player_id', 'id');
+    public function attackerReport() {
+        return $this->hasMany('App\Models\AssaultReport', 'attacker_id', 'id');
     }
 
-    public function guerrillaType() {
-        return $this->belongsTo('App\Models\GuerrillaType', 'guerrilla_type_id', 'id')
+    public function targetReport() {
+        return $this->hasMany('App\Models\AssaultReport', 'target_id', 'id');
     }
 
-    public function battleUnits() {
-        return $this->belongsToMany('App\Models\BattleUnit')
-            ->withPivot('total');
-    }
-
-    public function battleResources() {
-        return $this->belongsToMany('App\Models\BattleResource')
-            ->withPivot('value');
-    }
 }

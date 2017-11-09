@@ -19,19 +19,19 @@ class CreateAssaultReportTable extends Migration
             $table->integer('target_id')->unsigned();
             $table->foreign('target_id')
                 ->references('id')
-                ->on('players')
+                ->on('guerrillas')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
             $table->integer('attacker_id')->unsigned();
             $table->foreign('attacker_id')
                 ->references('id')
-                ->on('players')
+                ->on('guerrillas')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->json('attacker_result_url');
-            $table->json('target_result_url');
+            $table->string('attacker_result_url');
+            $table->string('target_result_url');
             $table->timestamps();
         });
     }

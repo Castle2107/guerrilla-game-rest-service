@@ -16,11 +16,11 @@ class AssaultReport extends Model
     );
 
     public function attacker() {
-        return $this->belongsTo('App\Models\Player', 'attacker_id', 'id');
+        return $this->belongsTo('App\Models\Guerrilla', 'attacker_id', 'id');
     }
 
     public function target() {
-        return $this->belongsTo('App\Models\Player', 'target_id', 'id');
+        return $this->belongsTo('App\Models\Guerrilla', 'target_id', 'id');
     }
 
 }

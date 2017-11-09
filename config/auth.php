@@ -46,15 +46,15 @@ return [
             'provider' => 'users',
         ],
 
-        'player' => [
+        'guerrilla' => [
             'driver' => 'session',
-            'provider' => 'players',
+            'provider' => 'guerrillas',
         ],
 
-        'player-api' => [
+        'guerrilla-api' => [
             // TODO: 'driver' => 'passport or jwt',
             'driver' => 'token',
-            'provider' => 'players',
+            'provider' => 'guerrillas',
         ],
     ],
 
@@ -81,9 +81,9 @@ return [
             'model' => App\User::class,
         ],
 
-        'players' => [
+        'guerrilla' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Player::class,
+            'model' => App\Models\Guerrilla::class,
         ],
 
         // 'users' => [
@@ -114,8 +114,8 @@ return [
             'expire' => 60,
         ],
 
-        'players' => [
-            'provider' => 'players',
+        'guerillas' => [
+            'provider' => 'guerillas',
             'table' => 'password_resets',
             'expire' => 15,
         ],
