@@ -4,9 +4,11 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Exceptions\ExceptionTrait;
 
 class Handler extends ExceptionHandler
 {
+    use ExceptionTrait;
     /**
      * A list of the exception types that are not reported.
      *
@@ -48,6 +50,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($request->wantsJson()) {
+            return $this->apiException($request, $exception);
+        }
+
         return parent::render($request, $exception);
     }
 }
