@@ -15,19 +15,19 @@ class CreateGuerrillasTable extends Migration
     {
         Schema::create('guerrillas', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('username', 50);
-            $table->string('email', 100);
+            $table->string('username', 50)->unique();
+            $table->string('email', 100)->unique();
             $table->enum('guerrilla_type', ['China', 'USMC', 'MEC']);
-            $table->integer('money');
-            $table->integer('people');
-            $table->integer('oil');
-            $table->integer('tank');
-            $table->integer('assault');
-            $table->integer('engineer');
-            $table->integer('bunker');
-            $table->double('attack_rate');
-            $table->double('defense_rate');
-            $table->integer('ranking_score');
+            $table->integer('money')->default(300);
+            $table->integer('people')->default(50);
+            $table->integer('oil')->default(300);
+            $table->integer('tank')->default(0);
+            $table->integer('assault')->default(0);
+            $table->integer('engineer')->default(0);
+            $table->integer('bunker')->default(0);
+            $table->double('attack_rate')->default(0);
+            $table->double('defense_rate')->default(0);
+            $table->integer('ranking_score')->default(0);
             $table->timestamps();
         });
     }
