@@ -22,15 +22,10 @@ class GuerrillaController extends Controller
 
     public function store(Request $request)
     {
-        //TODO: create GuerrillaRequest
-        $email = $request->email;
-        $username = $request->username;
-        $guerrilla_type = $request->faction;
-
         $guerrilla = new Guerrilla();
-        $guerrilla->email = $email;
-        $guerrilla->username = $username;
-        $guerrilla->guerrilla_type = $guerrilla_type;
+        $guerrilla->email = $request->email;
+        $guerrilla->username = $request->username;
+        $guerrilla->guerrilla_type = $request->faction;
         $guerrilla->save();
 
         return response()->json([
@@ -41,16 +36,12 @@ class GuerrillaController extends Controller
 
     public function show($id)
     {
-        try {
-            $guerrilla = Guerrilla::where('id', '=', $id)
-                ->orWhere('username', '=', $id)
-                ->firstOrFail();
-            return response()->json(
-                $guerrilla->guerrillaJSONFormat()
-            );
-        } catch (ModelNotFoundException $e) {
-            return $this->ModelResponse($e);
-        }
+        $guerrilla = Guerrilla::where('id', '=', $id)
+            ->orWhere('username', '=', $id)
+            ->firstOrFail();
+        return response()->json(
+            $guerrilla->guerrillaJsonFormat()
+        );
     }
 
     public function update(Request $request, $id)
@@ -60,100 +51,116 @@ class GuerrillaController extends Controller
 
     public function destroy($id)
     {
-        try {
-            $guerrilla = Guerrilla::findOrFail($id);
-            if ($guerrilla->delete()) {
-                return response()->json('Guerrilla deleted', 200);
-            } else {
-                return response()->json('Error at deleting model', 500);
-            }
-        } catch (ModelNotFoundException $e) {
-            return $this->ModelResponse($e);
-        }
-    }
-
-
-    /**
-    * TODO: change it all, it sucks xD
-    */
-    public function buyBattleUnit(Request $request)
-    {
-        try {
-            $guerrilla = Guerrilla::findOrFail($request->guerrilla);
-            $battleUnit = $request->battle_unit;
-            switch ($battleUnit) {
-                case 'ASSAULT_UNIT':
-                    return $this->buyOrFail(Rules::ASSAULT_UNIT, $guerrilla);
-                    break;
-                case 'ENGINEER_UNIT':
-                    return $this->buyOrFail(Rules::ENGINEER_UNIT, $guerrilla);
-                    break;
-                case 'TANK_UNIT':
-                    return $this->buyOrFail(Rules::TANK_UNIT, $guerrilla);
-                    break;
-                case 'BUNKER_UNIT':
-                    return $this->buyOrFail(Rules::BUNKER_UNIT, $guerrilla);
-                    break;
-                default:
-                    return response()->json('No valid battle unit indicated', 403);
-                    break;
-            }
-
-        } catch (ModelNotFoundException $e) {
-            return $this->ModelResponse($e);   
-        }        
-    }
-
-
-    /**
-    * $btuVal = battle unit global value
-    */
-    private function buyOrFail($btuVal = [], $guerrilla) {
-
-        if ($this->hasResources($btuVal, $guerrilla)) {
-
-            $this->reduceResources($btuVal, $guerrilla);
-            $this->addPoints($btuVal, $guerrilla);
-            $this->addBattleUnit($btuVal, $guerrilla);
-            
-            $guerrilla->save();
-
-            return response()->json([
-                'status' => 'ok'
-            ], 200);
-
+        $guerrilla = Guerrilla::findOrFail($id);
+        if ($guerrilla->delete()) {
+            return response()->json('Guerrilla deleted', 200);
         } else {
-            
-            return response()->json([
-                'status' => 'failed',
-                'error' => 'You dont have enough resources to buy this unit'
-            ], 403);
-
+            return response()->json('Error at deleting model', 500);
         }
     }
 
-    private function hasResources($btuVal, $guerrilla) {
-        return ($guerrilla->money >= $btuVal['money'])
-            && ($guerrilla->people >= $btuVal['people'])
-            && ($guerrilla->oil >= $btuVal['oil']);
+
+
+    /**
+    * TODO: the response should contain a message with the transaction result
+    * For example: if the player bought 1 battle unit, we should notify it was
+    * successfully added. If the player didn't have enough resources, it
+    * should return a message indicating it
+    */
+    public function buyGuerrilla(Request $request)
+    {
+        $guerrilla = Guerrilla::where('username', $request->username)->firstOrFail();
+        $battleUnits = array_merge($request->defense, $request->offense);
+        foreach ($battleUnits as $key => $value) {
+            if ($value) {
+                switch ($key) {
+                    case 'bunkers':
+                        $this->buyBattle(Rules::BUNKER_UNIT, $value, $guerrilla);
+                        break;
+                    case 'assault':
+                        $this->buyBattle(Rules::ASSAULT_UNIT, $value, $guerrilla);
+                        break;
+                    case 'engineers':
+                        $this->buyBattle(Rules::ENGINEER_UNIT, $value, $guerrilla);
+                        break;
+                    case 'tanks':
+                        $this->buyBattle(Rules::TANK_UNIT, $value, $guerrilla);
+                        break;
+                    default:
+                        return response()->json('No valid battle unit indicated', 403);
+                        break;
+                }
+            }
+        }
+        return response()->json(['status' => 'ok'], 200);
     }
 
-    private function reduceResources($btuVal = [], $guerrilla) {
-        $guerrilla->money -= $btuVal['money'];
-        $guerrilla->people -= $btuVal['people'];
-        $guerrilla->oil -= $btuVal['oil'];
+
+    /**
+    * @param const $btuVal      Variable from GlobalRules. 
+    * @param $quantity          Needed quantity of battle units
+    * @param $guerrilla         Guerrilla which needs the battle units
+    */
+    public function buyBattle($btuVal = [], $quantity, $guerrilla) 
+    {
+        // return $this->customResponse([$this->hasResources($btuVal, $quantity, $guerrilla)]);
+        if ($this->hasResources($btuVal, $quantity, $guerrilla)) {
+            $this->reduceResources($btuVal, $quantity, $guerrilla);
+            $this->addPoints($btuVal, $quantity, $guerrilla);
+            $this->addBattleUnit($btuVal, $quantity, $guerrilla);
+            $guerrilla->save();            
+        }
     }
 
-    private function addPoints($btuVal, $guerrilla) {
-        $guerrilla->ranking_score += $btuVal['points'];
+    /**
+    * Verifies if the guerrillas has the enough resources to buy 
+    * the specified battle unit
+    * 
+    * @param const $btuVal      Variable from GlobalRules (battle unit)
+    * @param $quantity          Needed quantity of battle units
+    * @param $guerrilla         Guerrilla which needs the battle units
+    */
+    private function hasResources($btuVal, $quantity, $guerrilla)
+    {
+        return ($guerrilla->money >= ($btuVal['money']  * $quantity))
+            && ($guerrilla->people >= ($btuVal['people']  * $quantity))
+            && ($guerrilla->oil >= ($btuVal['oil'] * $quantity));
     }
 
-    private function addBattleUnit($btuVal, $guerrilla) {
-        // TODO: it should add the battle unit
+    /**
+    * Reduces the resources according with the battle unit
+    * 
+    * @param const $btuVal      Variable from GlobalRules. (battle unit)
+    * @param $quantity          Needed quantity of battle units
+    * @param $guerrilla         Guerrilla which needs the battle units
+    */
+    private function reduceResources($btuVal = [], $quantity, $guerrilla)
+    {
+        $guerrilla->money -= ($btuVal['money'] * $quantity);
+        $guerrilla->people -= ($btuVal['people'] * $quantity);
+        $guerrilla->oil -= ($btuVal['oil'] * $quantity);
+    }
+
+    /**
+    * Add points according to the battle unit
+    *
+    * @param const $btuVal      Variable from GlobalRules. (battle unit) 
+    * @param $quantity          Needed quantity of battle units
+    * @param $guerrilla         Guerrilla which needs the battle units
+    */
+    private function addPoints($btuVal, $quantity, $guerrilla)
+    {
+        $guerrilla->ranking_score += ($btuVal['points'] * $quantity);
+    }
+
+    private function addBattleUnit($btuVal, $quantity, $guerrilla)
+    {
+        $guerrilla[$btuVal['name']] += $quantity;
     }
 
     // TODO: remove after testing functions
-    private function customResponse($data) {
+    private function customResponse($data)
+    {
         return response()->json($data, 200);
     }
 
