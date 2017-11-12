@@ -50,7 +50,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->isJson()) {
             return $this->apiException($request, $exception);
         }
 

@@ -16,12 +16,29 @@ trait ExceptionTrait
         if ($this->isHttp($e)) {
             return $this->HttpResponse($e);
         }
+        // return $this->GlobalExceptionResponse($e);
         return parent::render($request, $e);
+	}
+
+	public function prettyException($e) 
+	{
+		if ($this->isModel($e)) {
+            return $this->ModelResponse($e);
+        }
+        if ($this->isHttp($e)) {
+            return $this->HttpResponse($e);
+        }
+        return $this->GlobalException($e);
 	}
 
 	protected function isModel($e)
 	{
 		return $e instanceof ModelNotFoundException;
+	}
+
+	protected function isFatalErrorException($e)
+	{
+		return $e instanceof \FatalErrorException;
 	}
 	
 	protected function isHttp($e)
@@ -29,17 +46,46 @@ trait ExceptionTrait
 		return $e instanceof NotFoundHttpException; 
 	}
 	
+	protected function GlobalExceptionResponse($e) 
+	{
+		return $this->customExceptionResponse($e);
+	}
+
 	protected function ModelResponse($e)
 	{
-		return response()->json([
-            'errors' => 'Model not found'
-        ],Response::HTTP_NOT_FOUND);
+		return $this->customExceptionResponse(
+			'Model not found',
+			$e,
+			Response::HTTP_NOT_FOUND
+		);
 	}
 	
 	protected function HttpResponse($e)
 	{
+		return $this->customExceptionResponse(
+			'Incorrect route',
+			$e,
+			Response::HTTP_NOT_FOUND
+		);
+	}
+
+	protected function FatalErrorExceptionResponse($e)
+	{
+		return $this->customExceptionResponse(
+			'Invalid parameter passed. Check the API',
+			$e,
+			400
+		);
+	}
+
+	private function customExceptionResponse($errors = '', $exception, $httpCode = 500)
+	{
 		return response()->json([
-            'errors' => 'Incorrect route'
-        ],Response::HTTP_NOT_FOUND);
+			'errors' => $errors,
+			'exception' => [
+				'code' => $exception->getCode(),
+				'message' => $exception->getMessage()
+			],
+		], $httpCode);
 	}
 }
