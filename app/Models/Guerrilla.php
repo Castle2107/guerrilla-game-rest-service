@@ -79,7 +79,7 @@ class Guerrilla extends Model
     }
 
     // This method could be either here or in the controller
-    public function guerrillaJSONFormat() {
+    public function guerrillaJsonFormat() {
         return [
             'id' => $this->id,
             'faction' => $this->guerrilla_type,
