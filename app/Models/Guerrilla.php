@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\GlobalRules as Rules;
 
 class Guerrilla extends Model
 {
@@ -23,6 +24,66 @@ class Guerrilla extends Model
         'engineer',
         'bunker',
     );
+
+    public function updateResources($resources)
+    {
+        $this->reduceOil($resources['oil']);
+        $this->reduceMoney($resources['money']);
+
+        $this->save();
+    }
+
+    public function reduceOil($reduction)
+    {
+        $this->oil = ($reduction > $this->oil) ? 0 : $this->oil - $reduction;
+    }
+
+    public function reduceMoney($reduction)
+    {
+        $this->money = ($reduction > $this->money) ? 0 : $this->money - $reduction;
+    }
+
+    public function updateBattleUnits($defenseUnits, $offenseUnits)
+    {
+        $this->reduceAssault($defenseUnits['assault']);
+        $this->reduceEngineer($defenseUnits['engineers']);
+        $this->reduceTank($defenseUnits['tanks']);
+        $this->reduceBunker($offenseUnits['bunkers']);
+
+        $this->save();
+    }
+
+    public function reduceAssault($reduction)
+    {
+        $this->assault = ($reduction > $this->assault) ? 0 : $this->assault - $reduction;
+    }
+
+    public function reduceEngineer($reduction)
+    {
+        $this->engineer = ($reduction > $this->engineer) ? 0 : $this->engineer - $reduction;
+    }
+
+    public function reduceTank($reduction)
+    {
+        $this->tank = ($reduction > $this->tank) ? 0 : $this->tank - $reduction;
+    }
+
+    public function reduceBunker($reduction)
+    {
+        $this->bunker = ($reduction > $this->bunker) ? 0 : $this->bunker - $reduction;
+    }
+
+    public function updatePoints()
+    {
+        $this->ranking_score = (
+            $this->assault * Rules::ASSAULT_UNIT['points'] +
+            $this->engineer * Rules::ENGINEER_UNIT['points'] +
+            $this->tank * Rules::TANK_UNIT['points'] +
+            $this->bunker * Rules::BUNKER_UNIT['points']
+        );
+
+        $this->save();
+    }
 
     public function attackerReport() {
         return $this->hasMany('App\Models\AssaultReport', 'attacker_id', 'id');
