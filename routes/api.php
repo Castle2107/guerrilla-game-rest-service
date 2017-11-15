@@ -38,3 +38,9 @@ Route::post('/guerrillas/battle_units/', 'GuerrillaController@buyBattleUnit');
 Route::apiResource('/guerrillas', 'GuerrillaController');
 
 Route::post('/buy_guerrilla', 'GuerrillaController@buyGuerrilla');
+
+Route::post('/attack_guerrilla', 'GuerrillaController@attackGuerrilla');
+
+Route::get('/guerrillas/{guerrilla_id}/assault_reports', 'AssaultReportController@index');
+
+Route::get('/guerrillas/{guerrilla_id}/assault_reports/{assault_report_id}', 'AssaultReportController@show');
