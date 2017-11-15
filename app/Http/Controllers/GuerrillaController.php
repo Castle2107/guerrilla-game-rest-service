@@ -194,7 +194,7 @@ class GuerrillaController extends Controller
         $attacker->updatePoints();
 
         $target->updateResources($assaultReportTarget['resources_lost']);
-        $target->updateBattleUnits($assaultReportTarget['defense_lost'], $assaultReportAttacker['offense_lost']);
+        $target->updateBattleUnits($assaultReportTarget['defense_lost'], $assaultReportTarget['offense_lost']);
         $target->updatePoints();
 
         return response()->json([
