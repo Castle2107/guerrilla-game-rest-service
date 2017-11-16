@@ -306,54 +306,54 @@ class GuerrillaController extends Controller
         );
     }
 
-    public function getTargetLostUnits(Guerrilla $guerrilla, $deffenseTarget)
+    public function getTargetLostUnits(Guerrilla $guerrilla, $offenseAttacker)
     {
         return array(
             'defense_lost' => array(
-                'assault'   => floor($this->getTargetLostAssaultUnits($guerrilla, $deffenseTarget)),
-                'engineers' => floor($this->getTargetLostEngineerUnits($guerrilla, $deffenseTarget)),
-                'tanks'     => floor($this->getTargetLostTankUnits($guerrilla, $deffenseTarget)),
+                'assault'   => floor($this->getTargetLostAssaultUnits($guerrilla, $offenseAttacker)),
+                'engineers' => floor($this->getTargetLostEngineerUnits($guerrilla, $offenseAttacker)),
+                'tanks'     => floor($this->getTargetLostTankUnits($guerrilla, $offenseAttacker)),
             ),
             'offense_lost' => array(
-                'bunkers' => floor($this->getTargetLostBunkerUnits($guerrilla, $deffenseTarget))
+                'bunkers' => floor($this->getTargetLostBunkerUnits($guerrilla, $offenseAttacker))
             )
         );
     }
 
-    public function getTargetLostAssaultUnits(Guerrilla $guerrilla, $deffenseTarget)
+    public function getTargetLostAssaultUnits(Guerrilla $guerrilla, $offenseAttacker)
     {
         return ($guerrilla->assault * Rules::ASSAULT_DAMAGE_INFLICTED['assault'] +
                 $guerrilla->engineer * Rules::ASSAULT_DAMAGE_INFLICTED['engineer'] +
                 $guerrilla->tank * Rules::ASSAULT_DAMAGE_INFLICTED['tank'] +
                 $guerrilla->bunker * Rules::ASSAULT_DAMAGE_INFLICTED['bunker']) * 
-                $deffenseTarget;
+                $offenseAttacker;
     }
 
-    public function getTargetLostEngineerUnits(Guerrilla $guerrilla, $deffenseTarget)
+    public function getTargetLostEngineerUnits(Guerrilla $guerrilla, $offenseAttacker)
     {
         return ($guerrilla->assault * Rules::ENGINEER_DAMAGE_INFLICTED['assault'] +
                 $guerrilla->engineer * Rules::ENGINEER_DAMAGE_INFLICTED['engineer'] +
                 $guerrilla->tank * Rules::ENGINEER_DAMAGE_INFLICTED['tank'] +
                 $guerrilla->bunker * Rules::ENGINEER_DAMAGE_INFLICTED['bunker']) * 
-                $deffenseTarget;
+                $offenseAttacker;
     }
 
-    public function getTargetLostTankUnits(Guerrilla $guerrilla, $deffenseTarget)
+    public function getTargetLostTankUnits(Guerrilla $guerrilla, $offenseAttacker)
     {
         return ($guerrilla->assault * Rules::TANK_DAMAGE_INFLICTED['assault'] +
                 $guerrilla->engineer * Rules::TANK_DAMAGE_INFLICTED['engineer'] +
                 $guerrilla->tank * Rules::TANK_DAMAGE_INFLICTED['tank'] +
                 $guerrilla->bunker * Rules::TANK_DAMAGE_INFLICTED['bunker']) * 
-                $deffenseTarget;
+                $offenseAttacker;
     }
 
-    public function getTargetLostBunkerUnits(Guerrilla $guerrilla, $deffenseTarget)
+    public function getTargetLostBunkerUnits(Guerrilla $guerrilla, $offenseAttacker)
     {
         return ($guerrilla->assault * Rules::BUNKER_DAMAGE_INFLICTED['assault'] +
                 $guerrilla->engineer * Rules::BUNKER_DAMAGE_INFLICTED['engineer'] +
                 $guerrilla->tank * Rules::BUNKER_DAMAGE_INFLICTED['tank'] +
                 $guerrilla->bunker * Rules::BUNKER_DAMAGE_INFLICTED['bunker']) * 
-                $deffenseTarget;
+                $offenseAttacker;
     }
 
     public function getAttackerLostUnits(Guerrilla $guerrilla, $deffenseTarget)
