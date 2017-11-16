@@ -179,7 +179,7 @@ class GuerrillaController extends Controller
         $defenseRateTarget   = $this->defenseRate($attacker, $target);
         $offenseRateAttacker = $this->attackRate($attacker, $target);
 
-        $lootCAP = $this->getLootCap($target);
+        $lootCAP = $this->getLootCap($attacker);
 
         $lostUnitsAttacker = $this->getAttackerLostUnits($target, $defenseRateTarget);
         $lostUnitsTarget   = $this->getTargetLostUnits($attacker, $offenseRateAttacker);
