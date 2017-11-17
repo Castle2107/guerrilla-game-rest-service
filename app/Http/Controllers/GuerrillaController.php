@@ -7,7 +7,7 @@ use App\Models\Guerrilla;
 use App\Models\AssaultReport;
 use App\Helpers\GlobalRules as Rules;
 use App\Http\Resources\Guerrilla as GuerrillaResource;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Requests\GuerrillaRequest;
 use App\Exceptions\ExceptionTrait;
 
 class GuerrillaController extends Controller
@@ -18,10 +18,10 @@ class GuerrillaController extends Controller
     {
         return response()->json(
             GuerrillaResource::collection(Guerrilla::all()), 200
-        );
+        );   
     }
 
-    public function store(Request $request)
+    public function store(GuerrillaRequest $request)
     {
         $guerrilla = new Guerrilla();
         $guerrilla->email = $request->email;
@@ -45,71 +45,80 @@ class GuerrillaController extends Controller
         );
     }
 
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
     public function destroy($id)
     {
         $guerrilla = Guerrilla::findOrFail($id);
         if ($guerrilla->delete()) {
-            return response()->json('Guerrilla deleted', 200);
+            return response()->json(['message' => 'Guerrilla deleted'], 200);
         } else {
-            return response()->json('Error at deleting model', 500);
+            return response()->json(['errors' => 'Error at deleting model'], 500);
         }
     }
 
-
-
     /**
-    * TODO: the response should contain a message with the transaction result
-    * For example: if the player bought 1 battle unit, we should notify it was
-    * successfully added. If the player didn't have enough resources, it
-    * should return a message indicating it
+    * Buys the battle units specified in the $request
+    *
+    * @param Request $request   contains username, defense and ofense battle units
+    * @return json
     */
     public function buyGuerrilla(Request $request)
     {
         $guerrilla = Guerrilla::where('username', $request->username)->firstOrFail();
         $battleUnits = array_merge($request->defense, $request->offense);
+        $info = array();
+
         foreach ($battleUnits as $key => $value) {
             if ($value) {
                 switch ($key) {
                     case 'bunkers':
-                        $this->buyBattle(Rules::BUNKER_UNIT, $value, $guerrilla);
+                        $info['bunkers'] = $this->buyBattleUnit(Rules::BUNKER_UNIT, $value, $guerrilla);
                         break;
                     case 'assault':
-                        $this->buyBattle(Rules::ASSAULT_UNIT, $value, $guerrilla);
+                        $info['assault'] = $this->buyBattleUnit(Rules::ASSAULT_UNIT, $value, $guerrilla);
                         break;
                     case 'engineers':
-                        $this->buyBattle(Rules::ENGINEER_UNIT, $value, $guerrilla);
+                        $info['engineers'] = $this->buyBattleUnit(Rules::ENGINEER_UNIT, $value, $guerrilla);
                         break;
                     case 'tanks':
-                        $this->buyBattle(Rules::TANK_UNIT, $value, $guerrilla);
+                        $info['tanks'] = $this->buyBattleUnit(Rules::TANK_UNIT, $value, $guerrilla);
                         break;
                     default:
-                        return response()->json('No valid battle unit indicated', 403);
+                        return response()->json('The battle unit ' . $key . ' is not valid', 403);
                         break;
                 }
             }
         }
-        return response()->json(['status' => 'ok'], 200);
+
+        $guerrilla->save();
+        
+        return response()->json([
+            'status' => 'ok',
+            'info' => $info
+        ], 200);
     }
 
-
     /**
-    * @param const $btuVal      Variable from GlobalRules. 
-    * @param $quantity          Needed quantity of battle units
-    * @param $guerrilla         Guerrilla which needs the battle units
+    * If the guerrilla passed has enough resources, reduces resources and
+    * add the points and battle unit
+    *
+    * @param const Array $battleUnit      Variable from GlobalRules. 
+    * @param int $quantity                Needed quantity of battle units
+    * @param Guerrilla $guerrilla         Guerrilla which needs the battle units
+    * @return json
     */
-    public function buyBattle($btuVal = [], $quantity, $guerrilla) 
+    public function buyBattleUnit($battleUnit = [], $quantity, $guerrilla) 
     {
-        // return $this->customResponse([$this->hasResources($btuVal, $quantity, $guerrilla)]);
-        if ($this->hasResources($btuVal, $quantity, $guerrilla)) {
-            $this->reduceResources($btuVal, $quantity, $guerrilla);
-            $this->addPoints($btuVal, $quantity, $guerrilla);
-            $this->addBattleUnit($btuVal, $quantity, $guerrilla);
-            $guerrilla->save();            
+        if ($this->hasResources($battleUnit, $quantity, $guerrilla)) {
+
+            $this->reduceResources($battleUnit, $quantity, $guerrilla);
+            $guerrilla->increaseRankingScore(($battleUnit['points'] * $quantity));
+            $guerrilla->increaseBattleUnit($battleUnit['name'], $quantity);
+
+            return $this->validPurchaseResponse($battleUnit, $quantity);
+
+        } else {
+
+            return $this->invalidPurchaseResponse($battleUnit, $quantity);
         }
     }
 
@@ -117,52 +126,40 @@ class GuerrillaController extends Controller
     * Verifies if the guerrillas has the enough resources to buy 
     * the specified battle unit
     * 
-    * @param const $btuVal      Variable from GlobalRules (battle unit)
-    * @param $quantity          Needed quantity of battle units
-    * @param $guerrilla         Guerrilla which needs the battle units
+    * @param const Array $battleUnit    Variable from GlobalRules
+    * @param int $quantity              Needed quantity of battle units
+    * @param Guerrilla $guerrilla       Guerrilla which needs the battle units
+    * @return boolean
     */
-    private function hasResources($btuVal, $quantity, $guerrilla)
+    private function hasResources($battleUnit, $quantity, $guerrilla)
     {
-        return ($guerrilla->money >= ($btuVal['money']  * $quantity))
-            && ($guerrilla->people >= ($btuVal['people']  * $quantity))
-            && ($guerrilla->oil >= ($btuVal['oil'] * $quantity));
+        return ($guerrilla->hasMoney(($battleUnit['money'] * $quantity)))
+            && ($guerrilla->hasPeople(($battleUnit['people'] * $quantity)))
+            && ($guerrilla->hasOil(($battleUnit['oil'] * $quantity)));
     }
 
     /**
     * Reduces the resources according with the battle unit
     * 
-    * @param const $btuVal      Variable from GlobalRules. (battle unit)
-    * @param $quantity          Needed quantity of battle units
-    * @param $guerrilla         Guerrilla which needs the battle units
+    * @param const Array $battleUnit   Variable from GlobalRules.
+    * @param int $quantity             Needed quantity of battle units
+    * @param Guerrilla $guerrilla      Guerrilla which needs the battle units
     */
-    private function reduceResources($btuVal = [], $quantity, $guerrilla)
+    private function reduceResources($battleUnit = [], $quantity, $guerrilla)
     {
-        $guerrilla->money -= ($btuVal['money'] * $quantity);
-        $guerrilla->people -= ($btuVal['people'] * $quantity);
-        $guerrilla->oil -= ($btuVal['oil'] * $quantity);
+        $guerrilla->reducePeople(($battleUnit['people'] * $quantity));
+        $guerrilla->reduceOil(($battleUnit['oil'] * $quantity));
+        $guerrilla->reduceMoney(($battleUnit['money'] * $quantity));
     }
 
-    /**
-    * Add points according to the battle unit
-    *
-    * @param const $btuVal      Variable from GlobalRules. (battle unit) 
-    * @param $quantity          Needed quantity of battle units
-    * @param $guerrilla         Guerrilla which needs the battle units
-    */
-    private function addPoints($btuVal, $quantity, $guerrilla)
+    private function invalidPurchaseResponse($battleUnit, $quantity)
     {
-        $guerrilla->ranking_score += ($btuVal['points'] * $quantity);
+        return ('Not enough resources to buy ' . $quantity . ' ' . $battleUnit['name'] . ' units');   
     }
 
-    private function addBattleUnit($btuVal, $quantity, $guerrilla)
+    private function validPurchaseResponse($battleUnit, $quantity)
     {
-        $guerrilla[$btuVal['name']] += $quantity;
-    }
-
-    // TODO: remove after testing functions
-    private function customResponse($data)
-    {
-        return response()->json($data, 200);
+        return ($quantity . ' ' . $battleUnit['name'] . ' units were successfully bought');
     }
 
     /**
