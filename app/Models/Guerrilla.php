@@ -51,6 +51,36 @@ class Guerrilla extends Model
         $this->money -= $reduction;
     }
 
+    public function reducePeople($reduction)
+    {
+        $this->people -= $reduction;
+    }
+
+    public function hasOil($quantity)
+    {
+        return ($this->oil >= $quantity);
+    }
+
+    public function hasMoney($quantity)
+    {
+        return ($this->money >= $quantity);
+    }
+
+    public function hasPeople($quantity)
+    {
+        return ($this->people >= $quantity);
+    }
+
+    public function increaseBattleUnit($battleUnit, $quantity)
+    {
+        $this[$battleUnit] += $quantity;
+    }
+
+    public function increaseRankingScore($points)
+    {
+        $this->ranking_score += $points;
+    }
+
     public function increaseOil($increase)
     {
         $this->oil += $increase;
