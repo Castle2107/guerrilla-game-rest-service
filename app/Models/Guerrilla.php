@@ -25,7 +25,7 @@ class Guerrilla extends Model
         'bunker',
     );
 
-    public function updateResources($resources)
+    public function decreaseResources($resources)
     {
         $this->reduceOil($resources['oil']);
         $this->reduceMoney($resources['money']);
@@ -33,14 +33,32 @@ class Guerrilla extends Model
         $this->save();
     }
 
+    public function increaseResources($resources)
+    {
+        $this->increaseOil($resources['oil']);
+        $this->increaseMoney($resources['money']);
+
+        $this->save();
+    }
+
     public function reduceOil($reduction)
     {
-        $this->oil = ($reduction > $this->oil) ? 0 : $this->oil - $reduction;
+        $this->oil -= $reduction;
     }
 
     public function reduceMoney($reduction)
     {
-        $this->money = ($reduction > $this->money) ? 0 : $this->money - $reduction;
+        $this->money -= $reduction;
+    }
+
+    public function increaseOil($increase)
+    {
+        $this->oil += $increase;
+    }
+
+    public function increaseMoney($increase)
+    {
+        $this->money += $increase;
     }
 
     public function updateBattleUnits($defenseUnits, $offenseUnits)
