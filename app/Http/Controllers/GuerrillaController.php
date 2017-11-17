@@ -168,7 +168,7 @@ class GuerrillaController extends Controller
     /**
      * Make the attack between two guerrillas.
      * 
-     * @param  Request $request contains the IDs of the attacker and the target.
+     * @param  Request $request Contains the IDs of the attacker and the target.
      * @return json             Reports of the attacker and the target after the battle.
      */
     public function attackGuerrilla(Request $request)
@@ -180,28 +180,51 @@ class GuerrillaController extends Controller
         $offenseRateAttacker = $this->attackRate($attacker, $target);
 
         $lootCAP = $this->getLootCap($attacker);
+        $theftAndLostResources = $this->calculateTheftAndLostResources($lootCAP, $target);
 
         $lostUnitsAttacker = $this->getAttackerLostUnits($target, $defenseRateTarget);
         $lostUnitsTarget   = $this->getTargetLostUnits($attacker, $offenseRateAttacker);
 
-        $assaultReportAttacker = $this->generateReportAttackerBattle($attacker, $lootCAP, $lostUnitsAttacker);
-        $assaultReportTarget   = $this->generateReportTargetBattle($target, $lootCAP, $lostUnitsTarget);
-
-        $this->saveAssaultReport($target, $attacker, $assaultReportAttacker, $assaultReportTarget);
-
-        //$attacker->updateResources($assaultReportAttacker['resources_lost']);
-        $attacker->updateBattleUnits($assaultReportAttacker['defense_lost'], $assaultReportAttacker['offense_lost']);
+        $attacker->increaseResources($theftAndLostResources);
+        $attacker->updateBattleUnits($lostUnitsAttacker['defense_lost'], $lostUnitsAttacker['offense_lost']);
         $attacker->updatePoints();
 
-        $target->updateResources($assaultReportTarget['resources_lost']);
-        $target->updateBattleUnits($assaultReportTarget['defense_lost'], $assaultReportTarget['offense_lost']);
+        $target->decreaseResources($theftAndLostResources);
+        $target->updateBattleUnits($lostUnitsTarget['defense_lost'], $lostUnitsTarget['offense_lost']);
         $target->updatePoints();
+
+        $assaultReportAttacker = $this->generateReportAttackerBattle($attacker, $theftAndLostResources, $lostUnitsAttacker);
+        $assaultReportTarget   = $this->generateReportTargetBattle($target, $theftAndLostResources, $lostUnitsTarget);
+
+        $this->saveAssaultReport($target, $attacker, $assaultReportAttacker, $assaultReportTarget);
 
         return response()->json([
         	'result'   => 'success',
             'attacker' => $assaultReportAttacker,
             'target'   => $assaultReportTarget
         ]);
+    }
+
+    /**
+     * It calculates the values that were lost by the target and
+     * stolen by the attacker.
+     * 
+     * @param  int      $lootCAP Attacker's loot.
+     * @param  Guerilla $target  Guerilla that lost resources.
+     * @return array             Values of lost/theft resources.
+     */
+    public function calculateTheftAndLostResources(int $lootCAP, $target)
+    {
+        $money = floor(rand(0, $lootCAP));
+        $oil   = $lootCAP - $money;
+
+        $money = ($target->money > $money) ? $money : $target->money;
+        $oil   = ($target->oil > $oil) ? $oil : $target->oil;
+
+        return array(
+            'money' => $money,
+            'oil'   => $oil
+        );
     }
 
     /**
@@ -226,7 +249,7 @@ class GuerrillaController extends Controller
     }
 
     /**
-     * Generate the json file of a report of a guerrilla that
+     * Generates the json file of a report of a guerrilla that
      * participated in a battle.
      * 
      * @param  array  $report Report of a guerrilla.
@@ -245,18 +268,15 @@ class GuerrillaController extends Controller
     }
 
     /**
-     * Generates the report the guerrilla that was attacked.
+     * Generates the guerilla's report that was attacked.
      * 
-     * @param  Guerrilla $target          Guerrilla that is attacked.
-     * @param  int       $lootCAP         Loot capacity.
-     * @param  array     $lostUnitsTarget Lost units.
-     * @return array                      Target's report.
+     * @param  Guerrilla $target                Guerrilla that is attacked.
+     * @param  array     $theftAndLostResources Values of lost/theft resources.
+     * @param  array     $lostUnitsTarget       Lost units.
+     * @return array                            Target's report.
      */
-    public function generateReportTargetBattle(Guerrilla $target, int $lootCAP, $lostUnitsTarget)
+    public function generateReportTargetBattle(Guerrilla $target, $theftAndLostResources, $lostUnitsTarget)
     {
-        $earnedMoney = floor(rand(0, $lootCAP));
-        $earnedOil   = $lootCAP - $earnedMoney;
-
         return array(
             'id'        => $target->id,
             'faction'   => $target->guerrilla_type,
@@ -266,8 +286,8 @@ class GuerrillaController extends Controller
             'timestamp' => $target->updated_at->getTimestamp(),
             'email'     => $target->email,
             'resources_lost' => array(
-                'oil'    => $earnedOil,
-                'money'  => $earnedMoney,
+                'oil'    => $theftAndLostResources['oil'],
+                'money'  => $theftAndLostResources['money'],
                 'people' => $target->people
             ),
             'offense_lost' => $lostUnitsTarget['offense_lost'],
@@ -276,18 +296,15 @@ class GuerrillaController extends Controller
     }
 
     /**
-     * Generates the report the guerrilla that attacks.
+     * Generates the guerrilla's report that attacks.
      * 
-     * @param  Guerrilla $attacker          Guerrilla that attacks.
-     * @param  int       $lootCAP           Loot capacity.
-     * @param  array     $lostUnitsAttacker Lost units.
-     * @return array                        Attacker's report.
+     * @param  Guerrilla $attacker              Guerrilla that attacks.
+     * @param  array     $theftAndLostResources Values of lost/theft resources.
+     * @param  array     $lostUnitsAttacker     Lost units.
+     * @return array                            Attacker's report.
      */
-    public function generateReportAttackerBattle(Guerrilla $attacker, int $lootCAP, $lostUnitsAttacker)
+    public function generateReportAttackerBattle(Guerrilla $attacker, $theftAndLostResources, $lostUnitsAttacker)
     {
-        $earnedMoney = floor(rand(0, $lootCAP));
-        $earnedOil   = $lootCAP - $earnedMoney;
-
         return array(
             'id'        => $attacker->id,
             'faction'   => $attacker->guerrilla_type,
@@ -297,8 +314,8 @@ class GuerrillaController extends Controller
             'timestamp' => $attacker->updated_at->getTimestamp(),
             'email'     => $attacker->email,
             'resources_lost' => array(
-                'oil'    => $earnedOil,
-                'money'  => $earnedMoney,
+                'oil'    => $theftAndLostResources['oil'],
+                'money'  => $theftAndLostResources['money'],
                 'people' => $attacker->people
             ),
             'offense_lost' => $lostUnitsAttacker['offense_lost'],
@@ -426,7 +443,7 @@ class GuerrillaController extends Controller
     }
 
     /**
-     * Calculate the defense rate.
+     * Calculates the defense rate.
      * 
      * @param  Guerrilla $attacker Guerrilla that attacks.
      * @param  Guerrilla $target   Guerrilla that is attacked.
@@ -441,7 +458,7 @@ class GuerrillaController extends Controller
     }
 
     /**
-     * Calculate the attack rate.
+     * Calculates the attack rate.
      * 
      * @param  Guerrilla $attacker Guerrilla that attacks.
      * @param  Guerrilla $target   Guerrilla that is attacked.
