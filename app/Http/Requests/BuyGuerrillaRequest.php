@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class GuerrillaRequest extends FormRequest
+class BuyGuerrillaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,12 +24,9 @@ class GuerrillaRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'required|max:50|unique:guerrillas,username',
-            'email' => 'required|email|max:100|unique:guerrillas,email',
-            'faction' => [
-                'required',
-                Rule::in(['China', 'USMC', 'MEC']),
-            ]
+            'username' => 'required|exists:guerrillas,username',
+            'defense' => 'required|array',
+            'offense' => 'required|array'
         ];
     }
 }

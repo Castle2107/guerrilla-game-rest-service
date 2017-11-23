@@ -8,6 +8,7 @@ use App\Models\AssaultReport;
 use App\Helpers\GlobalRules as Rules;
 use App\Http\Resources\Guerrilla as GuerrillaResource;
 use App\Http\Requests\GuerrillaRequest;
+use App\Http\Requests\BuyGuerrillaRequest;
 use App\Exceptions\ExceptionTrait;
 
 class GuerrillaController extends Controller
@@ -61,14 +62,14 @@ class GuerrillaController extends Controller
     * @param Request $request   contains username, defense and ofense battle units
     * @return json
     */
-    public function buyGuerrilla(Request $request)
+    public function buyGuerrilla(BuyGuerrillaRequest $request)
     {
         $guerrilla = Guerrilla::where('username', $request->username)->firstOrFail();
         $battleUnits = array_merge($request->defense, $request->offense);
         $info = array();
 
         foreach ($battleUnits as $key => $value) {
-            if ($value) {
+            if ($value > 0) {
                 switch ($key) {
                     case 'bunkers':
                         $info['bunkers'] = $this->buyBattleUnit(Rules::BUNKER_UNIT, $value, $guerrilla);
@@ -83,7 +84,7 @@ class GuerrillaController extends Controller
                         $info['tanks'] = $this->buyBattleUnit(Rules::TANK_UNIT, $value, $guerrilla);
                         break;
                     default:
-                        return response()->json('The battle unit ' . $key . ' is not valid', 403);
+                        return response()->json('The battle unit ' . $key . ' is not valid', 400);
                         break;
                 }
             }
