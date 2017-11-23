@@ -15,8 +15,13 @@ trait ExceptionTrait
         }
         if ($this->isHttp($e)) {
             return $this->HttpResponse($e);
-        }
-        // return $this->GlobalExceptionResponse($e);
+		}
+		if ($this->isFatalErrorException($e)) {
+            return $this->FatalErrorExceptionResponse($e);
+		}
+		if ($this->isErrorException($e)) {
+            return $this->ErrorExceptionResponse($e);
+		}
         return parent::render($request, $e);
 	}
 
@@ -39,6 +44,11 @@ trait ExceptionTrait
 	protected function isFatalErrorException($e)
 	{
 		return $e instanceof \FatalErrorException;
+	}
+
+	protected function isErrorException($e)
+	{
+		return $e instanceof \ErrorException;
 	}
 	
 	protected function isHttp($e)
@@ -63,13 +73,22 @@ trait ExceptionTrait
 	protected function HttpResponse($e)
 	{
 		return $this->customExceptionResponse(
-			'Incorrect route',
+			'The url given is not valid. Check the API',
 			$e,
-			Response::HTTP_NOT_FOUND
+			400
 		);
 	}
 
 	protected function FatalErrorExceptionResponse($e)
+	{
+		return $this->customExceptionResponse(
+			'Invalid parameter passed. Check the API',
+			$e,
+			400
+		);
+	}
+
+	protected function ErrorExceptionResponse($e)
 	{
 		return $this->customExceptionResponse(
 			'Invalid parameter passed. Check the API',
