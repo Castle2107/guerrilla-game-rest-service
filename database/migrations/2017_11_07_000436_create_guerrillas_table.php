@@ -18,16 +18,14 @@ class CreateGuerrillasTable extends Migration
             $table->string('username', 50)->unique();
             $table->string('email', 100)->unique();
             $table->enum('guerrilla_type', ['China', 'USMC', 'MEC']);
-            $table->integer('money')->default(300);
-            $table->integer('people')->default(50);
-            $table->integer('oil')->default(300);
-            $table->integer('tank')->default(0);
-            $table->integer('assault')->default(0);
-            $table->integer('engineer')->default(0);
-            $table->integer('bunker')->default(0);
-            $table->double('attack_rate')->default(0);
-            $table->double('defense_rate')->default(0);
-            $table->integer('ranking_score')->default(0);
+            $table->integer('money')->default(300)->unsigned();
+            $table->integer('people')->default(50)->unsigned();
+            $table->integer('oil')->default(300)->unsigned();
+            $table->integer('tank')->default(0)->unsigned();
+            $table->integer('assault')->default(0)->unsigned();
+            $table->integer('engineer')->default(0)->unsigned();
+            $table->integer('bunker')->default(0)->unsigned();
+            $table->integer('ranking_score')->default(0)->unsigned();
             $table->timestamps();
         });
     }
