@@ -173,13 +173,13 @@ class Guerrilla extends Model
         );
     }
 
-    public function offense() {
+    public function defense() {
         return array(
             'bunkers' => $this->bunker
         );
     }
 
-    public function defense() {
+    public function offense() {
         return array(
             'assault' => $this->assault,
             'engineers' => $this->engineer,
@@ -195,6 +195,7 @@ class Guerrilla extends Model
             'username' => $this->username,
             'ranking' => $this->getRankingPosition(),
             'points' => $this->ranking_score,
+            'timestamp' => $this->updated_at->getTimestamp(),
             'email' => $this->email,
             'resources' => $this->resources(),
             'defense' => $this->defense(),
