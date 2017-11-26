@@ -36,10 +36,10 @@ class GuerrillaController extends Controller
         ], 200);
     }
 
-    public function show($id)
+    public function show(Request $request)
     {
-        $guerrilla = Guerrilla::where('id', '=', $id)
-            ->orWhere('username', '=', $id)
+        $guerrilla = Guerrilla::where('id', '=', $request->id)
+            ->orWhere('username', '=', $request->username)
             ->firstOrFail();
         return response()->json(
             $guerrilla->guerrillaJsonFormat()
