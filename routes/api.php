@@ -29,7 +29,7 @@ use App\Http\Resources\Guerrilla as GuerrillaResource;
 
 Route::get('/list_guerrillas', 'GuerrillaController@index');
 
-Route::get('/inspect_guerrilla/{guerrilla}', 'GuerrillaController@show');
+Route::post('/inspect_guerrilla', 'GuerrillaController@show');
 
 Route::post('/create_guerrilla', 'GuerrillaController@store');
 
