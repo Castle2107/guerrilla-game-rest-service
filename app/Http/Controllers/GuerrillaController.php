@@ -501,4 +501,16 @@ class GuerrillaController extends Controller
         return $assault*20 + $engineers*70 + $tanks*20 + $bunkers*600;
     }
 
+    public function login(Request $request)
+    {
+        $guerrilla = Guerrilla::where('email', '=', $request->email)
+            ->orWhere('username', '=', $request->username)
+            ->firstOrFail();
+
+        if (isset($guerrilla))
+            return response()->json($guerrilla->id);
+        else
+            return response()->json('These credentials do not match our records.', 302);
+    }
+
 }

@@ -44,3 +44,5 @@ Route::post('/attack_guerrilla', 'GuerrillaController@attackGuerrilla');
 Route::get('/guerrillas/{guerrilla_id}/assault_reports', 'AssaultReportController@index');
 
 Route::get('/guerrillas/{guerrilla_id}/assault_reports/{assault_report_id}', 'AssaultReportController@show');
+
+Route::post('/login', 'GuerrillaController@login');
