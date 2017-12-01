@@ -286,7 +286,7 @@ class GuerrillaController extends Controller
             'resources_lost' => array(
                 'oil'    => $theftAndLostResources['oil'],
                 'money'  => $theftAndLostResources['money'],
-                'people' => $target->people
+                'people' => 0
             ),
             'offense_lost' => $lostUnitsTarget['offense_lost'],
             'defense_lost' => $lostUnitsTarget['defense_lost']
@@ -314,7 +314,7 @@ class GuerrillaController extends Controller
             'resources_lost' => array(
                 'oil'    => $theftAndLostResources['oil'],
                 'money'  => $theftAndLostResources['money'],
-                'people' => $attacker->people
+                'people' => 0
             ),
             'offense_lost' => $lostUnitsAttacker['offense_lost'],
             'defense_lost' => $lostUnitsAttacker['defense_lost']
