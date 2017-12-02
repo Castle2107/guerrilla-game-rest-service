@@ -193,11 +193,11 @@ class GuerrillaController extends Controller
         $lostUnitsTarget   = $this->getTargetLostUnits($attacker, $offenseRateAttacker);
 
         $attacker->increaseResources($theftAndLostResources);
-        $attacker->updateBattleUnits($lostUnitsAttacker['defense_lost'], $lostUnitsAttacker['offense_lost']);
+        $lostUnitsAttacker = $attacker->updateBattleUnits($lostUnitsAttacker['defense_lost'], $lostUnitsAttacker['offense_lost']);
         $attacker->updatePoints();
 
         $target->decreaseResources($theftAndLostResources);
-        $target->updateBattleUnits($lostUnitsTarget['defense_lost'], $lostUnitsTarget['offense_lost']);
+        $lostUnitsTarget = $target->updateBattleUnits($lostUnitsTarget['defense_lost'], $lostUnitsTarget['offense_lost']);
         $target->updatePoints();
 
         $assaultReportAttacker = $this->generateReportAttackerBattle($attacker, $theftAndLostResources, $lostUnitsAttacker);

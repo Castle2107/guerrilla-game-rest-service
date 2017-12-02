@@ -93,32 +93,55 @@ class Guerrilla extends Model
 
     public function updateBattleUnits($defenseUnits, $offenseUnits)
     {
-        $this->reduceAssault($defenseUnits['assault']);
-        $this->reduceEngineer($defenseUnits['engineers']);
-        $this->reduceTank($defenseUnits['tanks']);
-        $this->reduceBunker($offenseUnits['bunkers']);
+        $assault  = $this->reduceAssault($defenseUnits['assault']);
+        $engineer = $this->reduceEngineer($defenseUnits['engineers']);
+        $tank     = $this->reduceTank($defenseUnits['tanks']);
+        $bunker   = $this->reduceBunker($offenseUnits['bunkers']);
 
         $this->save();
+        
+        return array(
+            'defense_lost' => array(
+                'assault' => $assault,
+                'engineers' => $engineer,
+                'tanks' => $tank,
+            ),
+            'offense_lost' => array(
+                'bunkers' => $bunker,
+            )
+        );
     }
 
     public function reduceAssault($reduction)
     {
+        $assault = ($this->assault >= $reduction) ? $reduction : $this->assault;
         $this->assault = ($reduction > $this->assault) ? 0 : $this->assault - $reduction;
+
+        return $assault;
     }
 
     public function reduceEngineer($reduction)
     {
+        $engineer = ($this->engineer >= $reduction) ? $reduction : $this->engineer;
         $this->engineer = ($reduction > $this->engineer) ? 0 : $this->engineer - $reduction;
+
+        return $engineer;
     }
 
     public function reduceTank($reduction)
     {
+        $tank = ($this->tank >= $reduction) ? $reduction : $this->tank;
         $this->tank = ($reduction > $this->tank) ? 0 : $this->tank - $reduction;
+
+        return $tank;
     }
 
     public function reduceBunker($reduction)
     {
+        $bunker = ($this->bunker >= $reduction) ? $reduction : $this->bunker;
         $this->bunker = ($reduction > $this->bunker) ? 0 : $this->bunker - $reduction;
+
+        return $bunker;
     }
 
     public function updatePoints()
