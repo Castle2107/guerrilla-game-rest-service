@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 trait ExceptionTrait
 {
@@ -12,7 +13,10 @@ trait ExceptionTrait
 	{
 		if ($this->isModel($e)) {
             return $this->ModelResponse($e);
-        }
+		}
+		if ($this->isMethodNotAllowedException($e)) {
+			return $this->MethodNotAllowedExceptionResponse($e);
+		}
         if ($this->isHttp($e)) {
             return $this->HttpResponse($e);
 		}
@@ -39,6 +43,11 @@ trait ExceptionTrait
 	protected function isModel($e)
 	{
 		return $e instanceof ModelNotFoundException;
+	}
+
+	protected function isMethodNotAllowedException($e)
+	{
+		return $e instanceof MethodNotAllowedHttpException;
 	}
 
 	protected function isFatalErrorException($e)
@@ -74,6 +83,15 @@ trait ExceptionTrait
 	{
 		return $this->customExceptionResponse(
 			'The url given is not valid. Check the API',
+			$e,
+			400
+		);
+	}
+
+	protected function MethodNotAllowedExceptionResponse($e)
+	{
+		return $this->customExceptionResponse(
+			'The http method used is not allowed for the request. Check the API',
 			$e,
 			400
 		);
