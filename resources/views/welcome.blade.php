@@ -5,91 +5,129 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Guerrilla Game Rest Service</title>
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
+        
+        <style type="text/css" media="screen">
 
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Raleway', sans-serif;
-                font-weight: 100;
-                height: 100vh;
-                margin: 0;
+            .affix {
+                width: 25%;
             }
 
-            .full-height {
-                height: 100vh;
+            .btn-link {
+                display: block;
+                text-align: left;
             }
 
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
+            kbd {
+                margin-top: .5em;
+                display: block;
             }
 
-            .position-ref {
-                position: relative;
+            .relevant-content p {
+                margin-bottom: 0px;
             }
 
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
+            /*====================================================
+             TEXT EDITOR
+            ====================================================*/
+            .relevant-content {
+                background-color: #F5F5F5;
+                border-radius: .25em;
+                padding: .25em;
+                margin-top: 1em;
             }
 
-            .content {
-                text-align: center;
+            .cell {
+                border-bottom: 0.5px solid #DDD;
+                border-right: 0.5px solid #DDD;
             }
 
-            .title {
-                font-size: 84px;
-            }
+            .border-left { border-left: 0.5px solid #DDD; }
 
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 12px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
+            .comment { color: #BDBDBD; }
 
-            .m-b-md {
-                margin-bottom: 30px;
-            }
+            .indent { text-indent: 3%; }
+
+            .indent-double { text-indent: 6%; }
+
+            .indent-triple { text-indent: 9%; }
+
+            .keyword, .operator { color: #63A35C; }
+
+            .method, .attribute { color: #795DA3; }
+
+            .value { color: #183691; }
         </style>
+
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-                        <a href="{{ route('register') }}">Register</a>
-                    @endauth
-                </div>
-            @endif
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
+        <div class="container">
+            <div class="row">
+
+                <div class="col-sm-4 hidden-xs" style="margin-top: 2em;">
+                    <div class="affix">
+                        <div class="panel" style="padding: .5em; margin-bottom: 0;">
+                            Guerrilla
+                        </div>
+                        <blockquote>
+                            <a href="#attackGuerrilla" class="btn btn-link">Attack Guerrilla</a>
+                            <a href="#buyGuerrilla" class="btn btn-link">Buy Guerrilla</a>
+                            <a href="#createGuerrilla" class="btn btn-link">Create Guerrilla</a>
+                            <a href="#inspectGuerrilla" class="btn btn-link">Inspect Guerrilla</a>
+                            <a href="#listGuerrilla" class="btn btn-link">List Guerrilla</a>
+                            <a href="#assaultReportsList" class="btn btn-link">Assault Reports List</a>
+                            <a href="#assaultReport" class="btn btn-link">Assault Report</a>
+                        </blockquote>
+                    </div>
                 </div>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
+                <div class="col-xs-12 col-sm-8" style="background: #FFF;">
+                    <!-- Header -->
+                    <div class="page-header">
+                        <h1>
+                            Guerrilla Game <small>Rest Service</small>
+                            <small class="pull-right">
+                                <span class="label label-default pull-right">1.0</span>
+                            </small>
+                        </h1>
+                    </div>
+                    <!-- Attack Guerrilla -->
+                    <div id="attackGuerrilla">
+                        @include('attack-guerrilla')
+                    </div>
+                    <!-- Buy Guerrilla -->
+                    <div id="buyGuerrilla">
+                        @include('buy-guerrilla')
+                    </div>
+                    <!-- Create Guerrilla -->
+                    <div id="createGuerrilla">
+                        @include('create-guerrilla')
+                    </div>
+                    <!-- Inspect Guerrilla -->
+                    <div id="inspectGuerrilla">
+                        @include('inspect-guerrilla')
+                    </div>
+                    <!-- List Guerrilla -->
+                    <div id="listGuerrilla">
+                        @include('list-guerrilla')
+                    </div>
+                    <!-- Assault Reports List -->
+                    <div id="assaultReportsList">
+                        @include('assault_reports_list')
+                    </div>
+                    <!-- Assault Report -->
+                    <div id="assaultReport">
+                        @include('assault_reports')
+                    </div>
                 </div>
+
             </div>
         </div>
+        
+        <script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
+
     </body>
 </html>

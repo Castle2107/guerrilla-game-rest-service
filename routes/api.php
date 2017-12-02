@@ -33,10 +33,6 @@ Route::post('/inspect_guerrilla', 'GuerrillaController@show');
 
 Route::post('/create_guerrilla', 'GuerrillaController@store');
 
-Route::post('/guerrillas/battle_units/', 'GuerrillaController@buyBattleUnit');
-
-Route::apiResource('/guerrillas', 'GuerrillaController');
-
 Route::post('/buy_guerrilla', 'GuerrillaController@buyGuerrilla');
 
 Route::post('/attack_guerrilla', 'GuerrillaController@attackGuerrilla');
