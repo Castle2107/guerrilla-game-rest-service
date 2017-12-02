@@ -94,7 +94,10 @@ class GuerrillaController extends Controller
         
         return response()->json([
             'status' => 'ok',
-            'info' => $info
+            'info' => $info,
+            'defense' => $guerrilla->defense(),
+            'offense' => $guerrilla->offense(),
+            'resources'=> $guerrilla->resources()
         ], 200);
     }
 
@@ -155,12 +158,18 @@ class GuerrillaController extends Controller
 
     private function invalidPurchaseResponse($battleUnit, $quantity)
     {
-        return ('Not enough resources to buy ' . $quantity . ' ' . $battleUnit['name'] . ' units');   
+        return array(
+            'success' => false,
+            'msg' => 'Not enough resources to buy ' . $quantity . ' ' . $battleUnit['name'] . ' units'
+        );
     }
 
     private function validPurchaseResponse($battleUnit, $quantity)
     {
-        return ($quantity . ' ' . $battleUnit['name'] . ' units were successfully bought');
+        return array(
+            'success' => true,
+            'msg' => $quantity . ' ' . $battleUnit['name'] . ' units were successfully bought'
+        );
     }
 
     /**
