@@ -18,7 +18,7 @@ class GuerrillaController extends Controller
     public function index()
     {
         return response()->json(
-            GuerrillaResource::collection(Guerrilla::all()), 200
+            GuerrillaResource::collection(Guerrilla::orderBy('ranking_score', 'desc')->get()), 200
         );   
     }
 
