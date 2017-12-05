@@ -461,7 +461,9 @@ class GuerrillaController extends Controller
         $deffenseTarget  = $this->getDefense($target);
         $offenseAttacker = $this->getOffense($attacker);
 
-        return ($deffenseTarget / ($offenseAttacker + $deffenseTarget)) + 0.1;
+        return ($deffenseTarget != 0 || $offenseAttacker != 0) ? 
+               ($deffenseTarget / ($offenseAttacker + $deffenseTarget)) + 0.1 :
+               10;
     }
 
     /**
@@ -475,8 +477,10 @@ class GuerrillaController extends Controller
     {
         $deffenseTarget  = $this->getDefense($target);
         $offenseAttacker = $this->getOffense($attacker);
-
-        return ($offenseAttacker / ($deffenseTarget + $offenseAttacker)) + 0.1;
+        
+        return ($deffenseTarget != 0 || $offenseAttacker != 0) ? 
+               ($offenseAttacker / ($deffenseTarget + $offenseAttacker)) + 0.1 :
+               10;
     }
 
     /**
