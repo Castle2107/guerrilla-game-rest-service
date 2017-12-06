@@ -518,7 +518,7 @@ class GuerrillaController extends Controller
     {
         $guerrilla = Guerrilla::where('email', '=', $request->email)
             ->orWhere('username', '=', $request->username)
-            ->firstOrFail();
+            ->first();
 
         if (isset($guerrilla))
             return response()->json($guerrilla->id);
